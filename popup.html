@@ -1,16 +1,32 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>OpenAI Text Analyzer</title>
+  <title>Solver-AI</title>
   <style>
-    body { width: 300px; padding: 10px; }
+    body { width: 300px; padding: 10px; height: 150px;}
     input { width: 100%; margin: 5px 0; }
+    #apiKeySection, #loggedInSection { display: none; }
   </style>
 </head>
 <body>
-  <h3>OpenAI Text Analyzer</h3>
-  <input type="password" id="apiKey" placeholder="Enter your OpenAI API key">
-  <button id="save">Save API Key</button>
+  <div style="text-align: center;">
+    <h2>Solver-AI</h2>
+  </div>
+  <div id="apiKeySection">
+    <input type="password" id="apiKey" placeholder="Enter your OpenAI API key">
+    <div style="text-align: center; margin-top: 20px;">
+      <button id="save">Save API Key</button>
+    </div>
+  </div>
+  <div id="loggedInSection">
+    <p style="text-align: center;">API Key is saved!</p>
+    <div style="text-align: center; margin-top: 20px;">
+      <button id="removeKey">Remove API Key</button>
+    </div>
+  </div>
+  <div style="text-align: center; position: fixed; bottom: 10px; left: 50%; transform: translateX(-50%); opacity: 0.5;">
+    <p style="font-size: 8px; margin: 0;">Developed by Nelson Daniels</p>
+  </div>
   <script src="popup.js"></script>
 </body>
 </html>
