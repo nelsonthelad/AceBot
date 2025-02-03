@@ -15,6 +15,14 @@ document.addEventListener('DOMContentLoaded', () => {
       apiKeySection.style.display = 'block';
       loggedInSection.style.display = 'none';
     }
+
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      const currentSite = document.getElementById('currentSite');
+      if (tabs[0]) {
+        const url = new URL(tabs[0].url);
+        currentSite.innerText = `Current Site: ${url.hostname}`;
+      }
+    });
   });
 });
 
@@ -56,7 +64,6 @@ document.addEventListener("DOMContentLoaded", function() {
 
       if (result.aiResponse) {
           console.log("Displaying Answer");
-          loggedInSection.style.display = 'none';
           aiResponseSection.style.display = 'block';
           document.getElementById("response").innerText = result.aiResponse;
       } else {
@@ -71,3 +78,4 @@ document.getElementById('clearKey').addEventListener('click', () => {
     loggedInSection.style.display = 'block';
   });
 });
+

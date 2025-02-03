@@ -30,4 +30,4 @@ To set up the AceBot extension, follow these steps:
 - After loading the extension, highlight any text on a webpage.
 - Click the AceBot icon in the Chrome toolbar to receive an AI-generated response based on the highlighted text.
 
-
+[Color Palette](https://colorhunt.co/palette/2121213232320d737714ffec)
