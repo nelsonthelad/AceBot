@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-  chrome.storage.sync.get(['apiKey'], (result) => {
+  chrome.storage.local.get(['apiKey'], (result) => {
     const apiKeySection = document.getElementById('apiKeySection');
     const loggedInSection = document.getElementById('loggedInSection');
     
@@ -28,7 +28,7 @@ document.getElementById('save').addEventListener('click', () => {
     return;
   }
   
-  chrome.storage.sync.set({ apiKey: apiKey.value }, () => {
+  chrome.storage.local.set({ apiKey: apiKey.value }, () => {
     apiKeySection.style.display = 'none';
     loggedInSection.style.display = 'block';
   });
@@ -43,7 +43,7 @@ document.getElementById('removeKey').addEventListener('click', () => {
     return;
   }
   
-  chrome.storage.sync.remove(['apiKey'], () => {
+  chrome.storage.local.remove(['apiKey'], () => {
     apiKeySection.style.display = 'block';
     loggedInSection.style.display = 'none';
   });

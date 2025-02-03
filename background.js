@@ -1,66 +1,59 @@
-import { OpenAI } from './openai/lib/index.js';
-
 function createContextMenu() {
   chrome.contextMenus.create({
     id: "analyzeText",
     title: "Analyze with OpenAI",
     contexts: ["selection"]
-  }, () => {
-    if (chrome.runtime.lastError) {
-      console.error('Error creating context menu:', chrome.runtime.lastError);
-    }
   });
 }
-
 chrome.runtime.onInstalled.addListener(createContextMenu);
-
-createContextMenu();
 
 chrome.contextMenus.onClicked.addListener(async (info, tab) => {
   if (info.menuItemId === "analyzeText") {
-    console.log("Analyzing Text");
-    const { apiKey } = await chrome.storage.sync.get('apiKey');
+    const { apiKey } = await chrome.storage.local.get('apiKey');
     if (!apiKey) {
-      chrome.tabs.sendMessage(tab.id, {
-        type: 'showError',
-        message: 'Please set your OpenAI API key in the extension popup'
-      });
+      console.log("No API Key")
       return;
     }
+    
     try {
-      const openai = new OpenAI({
-        apiKey: apiKey,
-      });
-
-      const completion = await openai.chat.completions.create({
-        model: "gpt-4o-mini",
-        messages: [
-          { role: "system", content: "You are a helpful assistant." },
-          {
-            role: "user", 
-            content: info.selectionText,
-          },
-        ],
-      });
-
-      const answer = completion.choices[0].message;
-
-      console.log(answer);
-
-      // Check if tab exists before sending message
-      const tabs = await chrome.tabs.query({active: true, currentWindow: true});
-      if (tabs[0]) {
-        chrome.tabs.sendMessage(tabs[0].id, {
-          type: 'showAnswer',
-          answer: answer
-        });
-      } else {
-        console.error('No active tab found');
-      }
+      const messages = [
+        { role: "system", content: "You are a helpful assistant who is helping students answer quiz questions. Your replies should be short but they should convey the answer clearly" },
+        { role: "user", content: info.selectionText },
+      ];
+      
+      const completion = await fetchAIResponse(messages, apiKey);
+      console.log(completion.choices[0].message.content);
     } catch (error) {
       console.error('Error sending message:', error);
-      // Handle error appropriately
     }
   }
 });
-  
+
+async function fetchAIResponse(messages, apiKey) {
+  try {
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`
+      },
+      body: JSON.stringify({
+        "messages": messages,
+        "model": "gpt-4o-mini",
+      })
+    });
+
+    if (!response.ok) {
+      if (response.status === 401) {
+        throw new Error("Looks like your API key is incorrect. Please check your API key and try again.");
+      } else {
+        throw new Error(`Failed to fetch. Status code: ${response.status}`);
+      }
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
