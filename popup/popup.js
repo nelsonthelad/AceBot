@@ -58,6 +58,15 @@ document.getElementById('removeKey').addEventListener('click', () => {
   });
 });
 
+document.getElementById("solveKey").addEventListener("click", () => {
+  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+    chrome.scripting.executeScript({
+      target: { tabId: tabs[0].id },
+      files: ["/scripts/content.js"]
+    });
+  });
+});
+
 document.addEventListener("DOMContentLoaded", function() {
   chrome.storage.local.get(["aiResponse"], function(result) {
       const aiResponseSection = document.getElementById('aiResponse');
@@ -78,4 +87,29 @@ document.getElementById('clearKey').addEventListener('click', () => {
     loggedInSection.style.display = 'block';
   });
 });
+
+document.getElementById('info').addEventListener('click', () => {
+  showContent('infoContent');
+});
+
+document.getElementById('scan').addEventListener('click', () => {
+  showContent('scanContent');
+});
+
+document.getElementById('api').addEventListener('click', () => {
+  showContent('apiContent');
+});
+
+function showContent(contentId) {
+  const contents = document.querySelectorAll('.loggedInStatus, #infoContent, #apiContent, #scanContent');
+  contents.forEach(content => {
+    content.style.display = 'none'; // Hide all content divs
+  });
+  
+  // Show the selected content
+  const selectedContent = document.getElementById(contentId);
+  if (selectedContent) {
+    selectedContent.style.display = 'flex'; // Ensure the selected content is displayed
+  }
+}
 

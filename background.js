@@ -33,6 +33,10 @@ chrome.contextMenus.onClicked.addListener(async (info) => {
         }
       });
 
+      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+        chrome.tabs.sendMessage(tabs[0].id, { answer: answer });
+      });
+
     } catch (error) {
       console.error('Error sending message:', error);
     }

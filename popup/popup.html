@@ -23,22 +23,43 @@
       <h1>AceBot</h1>
     </div>
 
-    <div class="loggedInStatus">
+    <div class="loggedInBtnPanel">
       <hr>
-      <div id="currentSite"></div>
+      <button id="info">INFO</button>
+      <button id="scan">SCAN</button>
+      <button id="api">API</button>
       <hr>
     </div>
 
-    <div class="loggedInStatus">
-      <hr>
-      <p>OpenAI Key Status: RUNNING</p>
-      <button id="removeKey">Remove API Key</button>
-      <hr>
+    <div id="infoContent" class="loggedInStatus" style="display: none;">
+      <div class="statusBlock">
+        <p>BUILD VERSION: v1.0.0</p>
+        <p>LLM: ChatGPT-4o-Mini</p>
+      </div>
+    </div>
+
+    <div class="loggedInStatus" id="scanContent">
+      <div>
+        <div class="statusBlock">
+          <div id="currentSite"></div>
+        </div>
+        <button style="padding: 12px 24px" id="solveKey">Scan and Solve</button>
+      </div>
+    </div>
+
+    <div class="loggedInStatus" id="apiContent" style="display: none;">
+      <div>
+        <div class="statusBlock">
+          <p>OpenAI Key Status:</p>
+          <h2 style="color: green;">RUNNING</h1>
+        </div>
+        <button id="removeKey">Remove API Key</button>
+      </div>
     </div>
 
   </div>
 
-  <div id="aiResponse" style="text-align: center;">
+  <div class="loggedInStatus" id="aiResponse" style="text-align: center;">
     <hr>
     <p>AI Response:</p>
     <p id="response" style="padding-top: 10px; text-align: center; font-weight: bold;"></p>
