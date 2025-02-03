@@ -12,11 +12,9 @@
 Navigate to the directory you want to store the extension and run the following commands in terminal:
 ```
 $ git clone https://github.com/nelsonthelad/solver-ai
-$ npm install
-$ npm run build
 ```
-Go to "Manage Extension" in your browser and ensure "Devloper Mode" is enabled
-<br>
-Click "Load Upacked" and select the "dist" folder
+- Go to "Manage Extension" in your browser and ensure "Devloper Mode" is enabled
+
+- Click "Load Upacked" and select the folder
 
 

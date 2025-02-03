@@ -2,15 +2,29 @@
     "manifest_version": 3,
     "name": "solver-ai",
     "version": "1.0",
+    "description": "Online Quiz Question Solver",
     "permissions": [
       "contextMenus",
       "storage",
       "activeTab"
     ],
     "action": {
-      "default_popup": "popup.html"
+      "default_popup": "popup/popup.html",
+      "default_icon": "images/icon.png"
     },
     "background": {
-      "service_worker": "background.js"
-    }
-  }
+      "service_worker": "background.js",
+      "type": "module"
+    },
+    "content_scripts": [
+      {
+        "matches": ["<all_urls>"],
+        "js": ["scripts/content.js"],
+        "css": ["popup/styles.css"]
+      }
+    ],
+    "web_accessible_resources": [{
+      "resources": ["openai/*"],
+      "matches": ["<all_urls>"]
+    }]
+}
