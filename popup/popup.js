@@ -54,12 +54,12 @@ document.getElementById('removeKey').addEventListener('click', () => {
   chrome.storage.local.remove(['apiKey'], () => {
     apiKeySection.style.display = 'block';
     loggedInSection.style.display = 'none';
+    aiResponse.style.display = 'none';
   });
 });
 
 document.addEventListener("DOMContentLoaded", function() {
   chrome.storage.local.get(["aiResponse"], function(result) {
-      const loggedInSection = document.getElementById('loggedInSection');
       const aiResponseSection = document.getElementById('aiResponse');
 
       if (result.aiResponse) {
