@@ -1,6 +1,5 @@
 # AceBot
-
-## Status: Working on UI Integration
+![AceBot Screenshot](images/icon128.png)
 
 ## Chrome Extension For Quick AI Responses
 
@@ -29,5 +28,10 @@ To set up the AceBot extension, follow these steps:
 
 - After loading the extension, highlight any text on a webpage.
 - Click the AceBot icon in the Chrome toolbar to receive an AI-generated response based on the highlighted text.
+
+## Comming Soon... 
+- Scanning web Page For Questions
+- Better UI
+- Auto Answering Quizzes
 
 [Color Palette](https://colorhunt.co/palette/2121213232320d737714ffec)
