@@ -8,18 +8,28 @@
   <div style="text-align: center;">
     <h2>Solver-AI</h2>
   </div>
+
   <div id="apiKeySection">
     <input type="password" id="apiKey" placeholder="Enter your OpenAI API key">
     <div style="text-align: center; margin-top: 20px;">
       <button id="save">Save API Key</button>
     </div>
   </div>
+
   <div id="loggedInSection">
     <p style="text-align: center;">API Key is saved!</p>
     <div style="text-align: center; margin-top: 20px;">
       <button id="removeKey">Remove API Key</button>
     </div>
   </div>
+
+  <div id="aiResponse">
+    <p id="response" style="padding-top: 10px; text-align: center; font-weight: bold;"></p>
+    <div style="text-align: center; margin-top: 40px;">
+      <button id="clearKey" style="font-size: 12px; padding: 4px 8px;">Clear</button>
+    </div>
+  </div>
+
   <div style="text-align: center; position: fixed; bottom: 10px; left: 50%; transform: translateX(-50%); opacity: 0.5;">
     <p style="font-size: 8px; margin: 0;">Developed by Nelson Daniels</p>
   </div>

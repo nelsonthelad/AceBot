@@ -7,7 +7,7 @@ function createContextMenu() {
 }
 chrome.runtime.onInstalled.addListener(createContextMenu);
 
-chrome.contextMenus.onClicked.addListener(async (info, tab) => {
+chrome.contextMenus.onClicked.addListener(async (info) => {
   if (info.menuItemId === "analyzeText") {
     const { apiKey } = await chrome.storage.local.get('apiKey');
     if (!apiKey) {
@@ -22,7 +22,17 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
       ];
       
       const completion = await fetchAIResponse(messages, apiKey);
-      console.log(completion.choices[0].message.content);
+      const answer = completion.choices[0].message.content
+      console.log(answer);
+
+      chrome.storage.local.set({ aiResponse: answer }, () => {
+        if (chrome.runtime.lastError) {
+          console.error("Error storing answer:", chrome.runtime.lastError);
+        } else {
+          console.log("Storing Answer");
+        }
+      });
+
     } catch (error) {
       console.error('Error sending message:', error);
     }
