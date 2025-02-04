@@ -27,7 +27,7 @@
       "service_worker": "background.js"
     },
     "host_permissions": [
-      "https://api.openai.com/v1/chat/completions"
+      "<all_urls>"
     ],
     "content_scripts": [
       {

@@ -3,11 +3,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const apiKeySection = document.getElementById('apiKeySection');
     const loggedInSection = document.getElementById('loggedInSection');
     
-    if (!apiKeySection || !loggedInSection) {
-      console.error('Required elements not found. Make sure apiKeySection and loggedInSection exist in popup.html');
-      return;
-    }
-    
     if (result.apiKey) {
       apiKeySection.style.display = 'none';
       loggedInSection.style.display = 'block';
@@ -31,11 +26,6 @@ document.getElementById('save').addEventListener('click', () => {
   const apiKeySection = document.getElementById('apiKeySection');
   const loggedInSection = document.getElementById('loggedInSection');
   
-  if (!apiKey || !apiKeySection || !loggedInSection) {
-    console.error('Required elements not found. Make sure apiKey, apiKeySection, and loggedInSection exist in popup.html');
-    return;
-  }
-  
   chrome.storage.local.set({ apiKey: apiKey.value }, () => {
     apiKeySection.style.display = 'none';
     loggedInSection.style.display = 'block';
@@ -46,11 +36,6 @@ document.getElementById('removeKey').addEventListener('click', () => {
   const apiKeySection = document.getElementById('apiKeySection');
   const loggedInSection = document.getElementById('loggedInSection');
   
-  if (!apiKeySection || !loggedInSection) {
-    console.error('Required elements not found. Make sure apiKeySection and loggedInSection exist in popup.html');
-    return;
-  }
-  
   chrome.storage.local.remove(['apiKey'], () => {
     apiKeySection.style.display = 'block';
     loggedInSection.style.display = 'none';
@@ -58,33 +43,62 @@ document.getElementById('removeKey').addEventListener('click', () => {
   });
 });
 
-document.getElementById("solveKey").addEventListener("click", () => {
-  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-    chrome.scripting.executeScript({
-      target: { tabId: tabs[0].id },
-      files: ["/scripts/content.js"]
-    });
-  });
-});
+document.getElementById("solveKey").addEventListener("click", async () => {
+  const questionsContainer = document.getElementById('questionsContainer');
+  showContent('scanContentAnswers');
+  console.log("Starting scan...");
 
-document.addEventListener("DOMContentLoaded", function() {
-  chrome.storage.local.get(["aiResponse"], function(result) {
-      const aiResponseSection = document.getElementById('aiResponse');
+  chrome.tabs.query({ active: true, currentWindow: true }, async (tabs) => {
+    if (!tabs[0]?.id) {
+      questionsContainer.innerHTML = '<p style="color: red;">Cannot access this page</p>';
+      return;
+    }
 
-      if (result.aiResponse) {
-          console.log("Displaying Answer");
-          aiResponseSection.style.display = 'block';
-          document.getElementById("response").innerText = result.aiResponse;
+    try {
+      // First, ensure the content script is injected
+      await chrome.scripting.executeScript({
+        target: { tabId: tabs[0].id },
+        files: ['scripts/content.js']
+      });
+
+      // Scan for questions
+      console.log("Scanning for questions...");
+      const response = await new Promise((resolve, reject) => {
+        chrome.tabs.sendMessage(tabs[0].id, { action: "scanQuestions" }, (response) => {
+          if (chrome.runtime.lastError) {
+            reject(new Error(chrome.runtime.lastError.message));
+          } else {
+            resolve(response);
+          }
+        });
+      });
+      console.log("Scanning Complete...");
+      console.log(response); // Log the response
+
+
+      if (response.questions && response.questions.length > 0) {
+        questionsContainer.innerHTML = ''; // Clear previous questions
+        
+        // Show the questions list container
+        document.getElementById('questionsList').style.display = 'block';
+        
+        // Display each question
+        response.questions.forEach(question => {
+          const questionDiv = document.createElement('div');
+          questionDiv.className = 'question-item';
+          questionDiv.innerHTML = `
+            <input type="checkbox" class="question-checkbox">
+            <p class="question-text">${question}</p>
+          `;
+          questionsContainer.appendChild(questionDiv);
+        });
       } else {
-          aiResponseSection.style.display = 'none';
+        questionsContainer.innerHTML = '<p>No questions found on this page</p>';
       }
-  });
-});
-
-document.getElementById('clearKey').addEventListener('click', () => {
-  chrome.storage.local.remove(['aiResponse'], () => {
-    aiResponse.style.display = 'none';
-    loggedInSection.style.display = 'block';
+    } catch (error) {
+      console.error('Scanning error:', error);
+      questionsContainer.innerHTML = `<p style="color: red;">Error scanning page: ${error.message}</p>`;
+    }
   });
 });
 
@@ -101,15 +115,30 @@ document.getElementById('api').addEventListener('click', () => {
 });
 
 function showContent(contentId) {
-  const contents = document.querySelectorAll('.loggedInStatus, #infoContent, #apiContent, #scanContent');
+  const contents = document.querySelectorAll('#infoContent, #apiContent, #scanContent, #scanContentAnswers');
   contents.forEach(content => {
-    content.style.display = 'none'; // Hide all content divs
+    content.style.display = 'none';
   });
   
-  // Show the selected content
   const selectedContent = document.getElementById(contentId);
   if (selectedContent) {
-    selectedContent.style.display = 'flex'; // Ensure the selected content is displayed
+    selectedContent.style.display = 'flex'; 
   }
 }
+
+document.getElementById('solveQuestions').addEventListener('click', async () => {
+  const selectedQuestions = Array.from(document.querySelectorAll('.question-checkbox:checked'))
+    .map(checkbox => checkbox.nextElementSibling.textContent);
+
+  if (selectedQuestions.length === 0) {
+    alert('Please select at least one question to solve');
+    return;
+  }
+
+  // Send to background.js for processing
+  chrome.runtime.sendMessage({
+    action: "solveSelectedQuestions",
+    questions: selectedQuestions
+  });
+});
 
