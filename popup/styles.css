@@ -218,6 +218,11 @@ body {
   .answer-text {
     color: #ffffff;
     font-size: 14px;
+    margin-top: 8px;
+    padding: 8px;
+    background-color: #333;
+    border-radius: 4px;
+    text-align: left;
   }
 
   .qButtonContainer {
@@ -231,5 +236,26 @@ body {
     width: 100%;
     margin: 10px 0;
   }
+
+  /*
+  AI Answers Styling
+  */
+
+  #clearAnswers {
+    background-color: #444;
+    margin-top: 10px;
+  }
+
+  #clearAnswers:hover {
+    background-color: #666;
+  }
+
+  #aiAnswersContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  
   
   

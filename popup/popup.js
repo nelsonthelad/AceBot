@@ -126,19 +126,70 @@ function showContent(contentId) {
   }
 }
 
+// Only showing the modified section of popup.js
 document.getElementById('solveQuestions').addEventListener('click', async () => {
   const selectedQuestions = Array.from(document.querySelectorAll('.question-checkbox:checked'))
     .map(checkbox => checkbox.nextElementSibling.textContent);
+  
+  console.log('Selected questions:', selectedQuestions);
 
   if (selectedQuestions.length === 0) {
     alert('Please select at least one question to solve');
     return;
   }
 
-  // Send to background.js for processing
-  chrome.runtime.sendMessage({
-    action: "solveSelectedQuestions",
-    questions: selectedQuestions
+  // Show loading state
+  showContent('aiAnswersContainer');
+  const questionsContainer = document.getElementById('questionsAnswersContainer');
+  questionsContainer.innerHTML = '<p style="text-align: center;">Processing questions...</p>';
+
+  try {
+    console.log("Sending to background.js...");
+    const response = await chrome.runtime.sendMessage({
+      action: "solveSelectedQuestions",
+      questions: selectedQuestions
+    });
+    
+    console.log('Response from background:', response);
+    
+    if (!response || !response.success) {
+      throw new Error(response?.error || 'Failed to process questions');
+    }
+
+    // Get the answers from storage
+    const result = await chrome.storage.local.get(['aiAnswers']);
+    if (result.aiAnswers) {
+      displayAnswers(result.aiAnswers);
+    } else {
+      throw new Error('No answers found in storage');
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    questionsContainer.innerHTML = `<p style="color: red; text-align: center;">Error: ${error.message}</p>`;
+  }
+});
+
+function displayAnswers(answers) {
+  const questionsContainer = document.getElementById('questionsAnswersContainer');
+  questionsContainer.innerHTML = '';
+  
+  answers.forEach(({question, answer}) => {
+    const answerDiv = document.createElement('div');
+    answerDiv.className = 'question-item';
+    answerDiv.innerHTML = `
+      <div class="question-text">${question}</div>
+      <div class="answer-text">${answer}</div>
+    `;
+    questionsContainer.appendChild(answerDiv);
+  });
+};
+
+document.getElementById('clearAnswers').addEventListener('click', () => {
+  chrome.storage.local.remove(['aiAnswers'], () => {
+    const questionsContainer = document.getElementById('questionsAnswersContainer');
+    questionsContainer.innerHTML = '';
+    document.getElementById('aiAnswersContainer').style.display = 'none';
+    showContent('scanContentAnswers');
   });
 });
 

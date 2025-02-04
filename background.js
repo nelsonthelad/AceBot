@@ -1,47 +1,56 @@
-function createContextMenu() {
-  chrome.contextMenus.create({
-    id: "analyzeText",
-    title: "Analyze with OpenAI",
-    contexts: ["selection"]
-  });
-}
-chrome.runtime.onInstalled.addListener(createContextMenu);
+chrome.runtime.onInstalled.addListener(() => {
+  console.log('Extension installed');
+});
 
-chrome.contextMenus.onClicked.addListener(async (info) => {
-  if (info.menuItemId === "analyzeText") {
-    const { apiKey } = await chrome.storage.local.get('apiKey');
-    if (!apiKey) {
-      console.log("No API Key")
-      return;
-    }
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.action === "solveSelectedQuestions") {
     
+    handleQuestions(request.questions)
+      .then(result => {
+        sendResponse({ success: true });
+      })
+      .catch(error => {
+        sendResponse({ success: false, error: error.message });
+      });
+    
+    return true;
+  }
+});
+
+async function handleQuestions(questions) {
+  const { apiKey } = await chrome.storage.local.get('apiKey');
+  
+  if (!apiKey) {
+    throw new Error('API key not found');
+  }
+
+  const answers = [];
+  
+  for (const question of questions) {
     try {
       const messages = [
-        { role: "system", content: "You are a helpful assistant who is helping students answer quiz questions. Your replies should be short but they should convey the answer clearly" },
-        { role: "user", content: info.selectionText },
+        { role: "system", content: "Answer the following question concisely and accurately." },
+        { role: "user", content: question }
       ];
       
       const completion = await fetchAIResponse(messages, apiKey);
-      const answer = completion.choices[0].message.content
-      console.log(answer);
-
-      chrome.storage.local.set({ aiResponse: answer }, () => {
-        if (chrome.runtime.lastError) {
-          console.error("Error storing answer:", chrome.runtime.lastError);
-        } else {
-          console.log("Storing Answer");
-        }
+      
+      answers.push({
+        question,
+        answer: completion.choices[0].message.content
       });
-
-      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-        chrome.tabs.sendMessage(tabs[0].id, { answer: answer });
-      });
-
     } catch (error) {
-      console.error('Error sending message:', error);
+      console.error('Error processing question:', error);
+      answers.push({
+        question,
+        answer: `Error: ${error.message}`
+      });
     }
   }
-});
+  
+  await chrome.storage.local.set({ aiAnswers: answers });
+  return answers;
+}
 
 async function fetchAIResponse(messages, apiKey) {
   try {
@@ -53,21 +62,21 @@ async function fetchAIResponse(messages, apiKey) {
       },
       body: JSON.stringify({
         "messages": messages,
-        "model": "gpt-4o-mini",
+        "model": "gpt-4o-mini", 
       })
     });
 
     if (!response.ok) {
       if (response.status === 401) {
-        throw new Error("Looks like your API key is incorrect. Please check your API key and try again.");
+        throw new Error("Invalid API key. Please check your API key and try again.");
       } else {
-        throw new Error(`Failed to fetch. Status code: ${response.status}`);
+        throw new Error(`API request failed. Status code: ${response.status}`);
       }
     }
 
     return await response.json();
   } catch (error) {
-    console.error(error);
+    console.error('API request error:', error);
     throw error;
   }
 }

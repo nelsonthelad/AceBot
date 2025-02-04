@@ -10,7 +10,9 @@ function scanForQuestions() {
         text.toLowerCase().startsWith('how') ||
         text.toLowerCase().startsWith('why') ||
         text.toLowerCase().startsWith('when') ||
-        text.toLowerCase().startsWith('where')) {
+        text.toLowerCase().startsWith('where') ||
+        text.toLowerCase().startsWith('consider') ||
+        text.toLowerCase().startsWith('which')) {
       questions.push(text);
     }
   });

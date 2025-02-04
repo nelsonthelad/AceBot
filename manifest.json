@@ -4,7 +4,6 @@
     "version": "1.0",
     "description": "Online Quiz Question Solver",
     "permissions": [
-      "contextMenus",
       "storage",
       "activeTab",
       "scripting"
